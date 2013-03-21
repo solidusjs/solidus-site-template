@@ -4,8 +4,16 @@ exports.warnOn = '*';
 
 exports.template = function( grunt, init, done ){
 
-	var files = init.filesToCopy();
-	init.copyAndProcess( files );
-	done();
+	init.process({
+		name: 'My Solidus Site'
+	}, [
+		init.prompt('name')
+	], function( err, properties ){
+
+		var files = init.filesToCopy( properties );
+		init.copyAndProcess( files, properties );
+		done();
+
+	});
 
 };

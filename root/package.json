@@ -1,4 +1,6 @@
 {
+  "name": "{%= name %}",
+  "version": "0.0.0",
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib-sass": "~0.2.2",
