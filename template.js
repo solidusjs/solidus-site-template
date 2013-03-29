@@ -15,13 +15,7 @@ exports.template = function( grunt, init, done ){
 		var files = init.filesToCopy( properties );
 		init.copyAndProcess( files, properties );
 
-		// install node modules
-		var install_process = child_process.spawn( 'npm', ['install'], {
-			stdio: 'inherit'
-		});
-		install_process.on( 'close', function(){
-			done();
-		});
+		done();
 
 	});
 
