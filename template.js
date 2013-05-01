@@ -15,7 +15,15 @@ exports.template = function( grunt, init, done ){
 		var files = init.filesToCopy( properties );
 		init.copyAndProcess( files, properties );
 
-		done();
+		grunt.util.spawn({
+			cmd: 'npm',
+			args: ['install'],
+			opts: {
+				stdio: 'inherit'
+			},
+		}, function( err, result, code ){
+			done();
+		});
 
 	});
 
