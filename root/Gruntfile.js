@@ -69,7 +69,10 @@ module.exports = function( grunt ){
 		watch: {
 			styles: {
 				files: ['assets/styles/**/*.scss','assets/styles/**/*.css','assets/styles/**/*.sass'],
-				tasks: ['compilecss']
+				tasks: ['compilecss'],
+				options: {
+					livereload: true
+				}
 			},
 			templates: {
 				files: ['views/**/*.hbs'],
