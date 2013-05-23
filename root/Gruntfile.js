@@ -11,13 +11,6 @@ module.exports = function( grunt ){
 				},
 				src: ['assets/scripts/**/*.js'],
 				dest: 'assets/compiled/scripts.js'
-			},
-			css: {
-				options: {
-					separator: '\n'
-				},
-				src: ['assets/styles/**/*.css','assets/styles/**/*.scss','assets/styles/**/*.sass'],
-				dest: 'assets/compiled/styles.scss'
 			}
 		},
 		sass: {
@@ -28,7 +21,7 @@ module.exports = function( grunt ){
 					quiet: true
 				},
 				files: {
-					'assets/compiled/styles_tmp.css': ['assets/compiled/styles.scss']
+					'assets/compiled/styles_tmp.css': ['assets/styles/**/*.scss','assets/styles/**/*.css']
 				}
 			}
 		},
@@ -106,7 +99,7 @@ module.exports = function( grunt ){
 	grunt.registerTask( 'compile', ['compilecss','compilehbs','compilejs'] );
 	grunt.registerTask( 'compilehbs', ['handlebars'] );
 	grunt.registerTask( 'compilejs', ['concat:js'] );
-	grunt.registerTask( 'compilecss', ['concat:css','sass','copy','clean:sass'] );
+	grunt.registerTask( 'compilecss', ['sass','copy','clean:sass'] );
 	grunt.registerTask( 'dev', [ 'compile','server','watch' ] );
 
 };
