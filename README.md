@@ -28,9 +28,9 @@ grunt-init /path/to/solidus/template/folder/
 
 The Solidus Site Template provides a set of [Grunt](http://gruntjs.com) instructions for asset compilation. These scripts will do the following:
 
-- Compile all js in `/scripts/` to `/compiled/scripts.js`
-- Compile all CSS/SASS in `/styles/` to `/compiled/styles.css`
-- Compile all views in `/views/` to `/compiled/templates.js` and `/compiled/partials.js`
+- Compile `index.js` and all the files it requires to `/compiled/scripts.js`. [Require.js](http://requirejs.org/) is automatically included.
+- Compile `index.scss` and all the files it imports to `/compiled/styles.css`.
+- Compile all views in `/views/` to `/compiled/templates.js` as templates *and* partials. [Handlebars.js](http://handlebarsjs.com/) is automatically included.
 
 Here's a quick example of a Solidus site's asset structure:
 
@@ -44,8 +44,8 @@ assets
   |--index.js
   |--kitties.js
 |-styles
-  |-index.sass
-  |-kitties.sass
+  |-index.scss
+  |-kitties.scss
 ```
 
 After `grunt compile` or `grunt dev` are run, a new folder is created with the compiled scripts, styles, and templates of the site.
@@ -53,7 +53,6 @@ After `grunt compile` or `grunt dev` are run, a new folder is created with the c
 ```
 assets
 |-compiled
-  |-partials.js
   |-scripts.js
   |-styles.css
   |-templates.js
@@ -66,9 +65,7 @@ All of a site's views can be accessed client-side as **JavaScript Templates**. S
 ```html
 <html>
 	<head>
-		<script src="/scripts/vendor/handlebars.js"></script>
 		<script src="/compiled/templates.js"></script>
-		<script src="/compiled/partials.js"></script>
 		<script>
 			var markup = solidus.templates['kitties/index']( data );
 			$( function(){
@@ -79,4 +76,4 @@ All of a site's views can be accessed client-side as **JavaScript Templates**. S
 </html>
 ```
 
-At the moment, assets will be compiled in the order they appear in the filesystem. When building a site, you should always try to use the compiled assets, as they will be optimized for distribution. Other assets, such as fonts and images, have no compilation step and can be used as is.
+When building a site, you should always try to use the compiled assets, as they will be optimized for distribution. Other assets, such as fonts and images, have no compilation step and can be used as is.
