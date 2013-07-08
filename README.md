@@ -60,7 +60,7 @@ assets
 ...
 ```
 
-All of a site's views can be accessed client-side as **JavaScript Templates**. Since views are just [Handlebars.js](http://handlebarsjs.com/) templates, all you need to do is include Handlebars, include your templates, and use them. Javascript templates, along with anything else solidus makes available client-side, is on the `solidus` namespace. Here's a quick example of how it works:
+All of a site's views can be accessed client-side as **JavaScript Templates**. These views are compiled as [Handlebars.js](http://handlebarsjs.com/) templates *and* partials. Javascript templates, along with anything else solidus makes available client-side, is on the `solidus` namespace. Here's a quick example of how it works (assuming we have a view at `/views/kitties/index.hbs`):
 
 `index.hbs`
 ```html
