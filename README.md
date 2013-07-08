@@ -30,6 +30,7 @@ The Solidus Site Template provides a set of [Grunt](http://gruntjs.com) instruct
 
 - Compile `index.js` and all the files it requires to `/compiled/scripts.js`. [Require.js](http://requirejs.org/) is automatically included.
 - Compile `index.scss` and all the files it imports to `/compiled/styles.css`.
+- Use [Livereload](http://livereload.com/) to automatically reload a page's CSS when it is changed in development. You do not have to install Livereload (there is javascript in the layout that does this for you).
 - Compile all views in `/views/` to `/compiled/templates.js` as templates *and* partials. [Handlebars.js](http://handlebarsjs.com/) is automatically included.
 
 Here's a quick example of a Solidus site's asset structure:
