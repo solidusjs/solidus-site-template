@@ -5,11 +5,15 @@
 <!--[if gt IE 8]><!--><html class="no-js"><!--<![endif]-->
 <head>
 
-	{{{assets.styles}}}
-    {{{assets.scripts}}}
+	<link rel="stylesheet" href="/compiled/styles.css" />
+	{{#dev}}
+	<!-- Livereload script. Automatically reloads CSS when changed. -->
+	<script src="http://localhost:35729/livereload.js?snipver=1"></script>
+	{{/dev}}
+    <script src="/compiled/scripts.js"></script>
 
 </head>
-<body>
+<body id="page-{{page}}">
 
 	{{{body}}}
 
