@@ -17,6 +17,6 @@
     "grunt-filerev": "~0.1.0"
   },
   "dependencies": {
-    "solidus": "~0.0.1"
+    "solidus": "~0.0.2"
   }
 }
