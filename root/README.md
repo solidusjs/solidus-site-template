@@ -1,4 +1,4 @@
-#{%= name %}
+# {%= title %}
 
 ## Working On This Website
 

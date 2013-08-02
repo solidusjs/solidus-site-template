@@ -9,7 +9,8 @@ exports.template = function( grunt, init, done ){
 	init.process({
 		name: 'My Solidus Site'
 	}, [
-		init.prompt('name')
+		init.prompt('name'),
+		init.prompt('title')
 	], function( err, properties ){
 
 		var files = init.filesToCopy( properties );

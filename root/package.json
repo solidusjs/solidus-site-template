@@ -1,5 +1,5 @@
 {
-  "name": "solidus-test-site",
+  "name": "{%= name %}",
   "version": "0.0.0",
   "main": "start.js",
   "devDependencies": {
