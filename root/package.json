@@ -1,6 +1,7 @@
 {
   "name": "solidus-test-site",
   "version": "0.0.0",
+  "main": "start.js",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-sass": "~0.3.0",

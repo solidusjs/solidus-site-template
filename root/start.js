@@ -1,4 +1,6 @@
-var solidus = require('./node_modules/solidus/solidus.js');
+var solidus = require('solidus');
 
 // Manually start the Solidus server for services that require a start file
-solidus.start({});
+solidus.start({
+	port: process.env.PORT
+});
