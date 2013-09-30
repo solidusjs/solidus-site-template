@@ -147,7 +147,8 @@ module.exports = function( grunt ){
 		var solidus = require('solidus');
 		var port = grunt.option('port') || grunt.option('p');
 		solidus.start({
-			port: port
+			port: port,
+			dev: true
 		});		
 	});
 
