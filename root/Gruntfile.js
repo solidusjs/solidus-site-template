@@ -91,22 +91,35 @@ module.exports = function( grunt ){
 			predeploy: {
 				files: [
 					{expand: true, src: '*', filter: 'isFile', dot: true, dest: 'deploy/'},
-					{expand: true, src: ['assets/**','preprocessors/**','views/**'], dot: true, dest: 'deploy/'}
+					{expand: true, src: ['assets/**','node_modules/**','preprocessors/**','views/**'], dot: true, dest: 'deploy/'}
 				]
 			}
 		},
 		filerev: {
+			assets: { src: ['deploy/assets/**/*.*','!deploy/assets/**/*.{css,scss,js}'] },
+			styles: { src: ['deploy/assets/compiled/styles.css'] },
+			scripts: { src: ['deploy/assets/compiled/scripts.js'] },
+			templates: { src: ['deploy/assets/compiled/templates.js'] }
+		},
+		filerev_replace: {
 			assets: {
-				src: ['deploy/assets/**/*.*','!deploy/assets/**/*.{css,scss,js}']
-			},
-			styles: {
-				src: 'deploy/assets/compiled/styles.css'
-			},
-			scripts: {
-				src: 'deploy/assets/compiled/scripts.js'
-			},
-			templates: {
-				src: 'deploy/assets/compiled/templates.js'
+				options: {
+					assets_root: 'deploy/assets/',
+					views_root: 'deploy/assets/'
+				},
+				src: 'deploy/assets/compiled/*.{css,js}' },
+			views: {
+				options: {
+					assets_root: 'deploy/assets/',
+					views_root: 'deploy/views/'
+				},
+				src: 'deploy/views/**/*.hbs'
+			}
+		},
+		shell: {
+			predeploy_compilehbs: {
+				options: { stdout: true, stderr: true, failOnError: true },
+				command: 'cd deploy && grunt compilehbs'
 			}
 		},
 		watch: {
@@ -128,14 +141,9 @@ module.exports = function( grunt ){
 				files: ['assets/scripts/**/*.js'],
 				tasks: ['compilejs']
 			}
-		},
-		'replace-asset-urls': {
-			files: {
-				src: ['deploy/assets/compiled/*.{css,js}','deploy/views/**/*.hbs']
-			}
 		}
 	});
-	
+
 	// The cool way to load Grunt tasks
 	// https://github.com/Fauntleroy/relay.js/blob/master/Gruntfile.js
 	Object.keys( pkg.devDependencies ).forEach( function( dep ){
@@ -151,35 +159,22 @@ module.exports = function( grunt ){
 		});		
 	});
 
-	grunt.registerMultiTask( 'replace-asset-urls', function(){
-		// TODO: optimize this, make it more readable, make sure it handles relative paths and
-		// partial paths (for example 'some/font.eot' should match 'some/font.eot?#iefix' but not 'awesome/font.eot')
-		// We should probably move this task in a dedicated file, and write some unit tests.
-		this.files[0].src.forEach( function( src ){
-			var contents = grunt.file.read( src );
-			var changes = new Array();
-			for( var url in grunt.filerev.summary ){
-				var rev_url = grunt.filerev.summary[url].replace( 'deploy'+ path.sep +'assets'+ path.sep, '' );
-				var url_regex = new RegExp( url.replace( 'deploy'+ path.sep +'assets'+ path.sep, '' ), 'ig' );
-				var length = contents.length;
-				contents = contents.replace( url_regex, rev_url );
-				if( contents.length != length ) changes.push( '  '+ url_regex +' changed to '.grey+ rev_url );
-			}
-			grunt.file.write( src, contents );
-
-			if( changes.length > 0 ){
-				console.log( '✔'.green, src );
-				for( var i in changes ) console.log( changes[i] );
-			}
-		});
-	});
-
 	grunt.registerTask( 'default', ['compile'] );
 	grunt.registerTask( 'compile', ['compilecss','compilehbs','compilejs'] );
 	grunt.registerTask( 'compilehbs', ['handlebars','concat:templates','uglify:templates'] );
 	grunt.registerTask( 'compilejs', ['requirejs','concat:scripts'] );
 	grunt.registerTask( 'compilecss', ['sass','cssjoin','clean:styles'] );
 	grunt.registerTask( 'dev', [ 'compile','server','watch' ] );
-	grunt.registerTask( 'predeploy', ['clean:predeploy','copy:predeploy','filerev:assets','replace-asset-urls','filerev:styles','replace-asset-urls','filerev:scripts','replace-asset-urls','filerev:templates','replace-asset-urls'] );
+	grunt.registerTask( 'predeploy', [
+		'compilecss','compilejs',
+		// Copy the whole site to deploy/
+		'clean:predeploy','copy:predeploy',
+		// Fingerprint the deploy/ asset, styles and scripts
+		'filerev:assets','filerev_replace',
+		'filerev:styles','filerev_replace',
+		'filerev:scripts','filerev_replace',
+		// The deploy/ views now use fingerprinted assets, compile and fingerprint the deploy/ templates.js
+		'shell:predeploy_compilehbs',
+		'filerev:templates','filerev_replace'] );
 
 };
