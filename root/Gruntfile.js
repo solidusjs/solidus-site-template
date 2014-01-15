@@ -3,6 +3,8 @@ var path = require('path');
 module.exports = function( grunt ){
 
 	var pkg = grunt.file.readJSON( __dirname +'/package.json');
+	var solidus_port = grunt.option('port') || grunt.option('p');
+	var livereload_port = grunt.option('livereloadport') || grunt.option('r');
 
 	grunt.initConfig({
 		pkg: pkg,
@@ -114,7 +116,7 @@ module.exports = function( grunt ){
 			livereload: {
 				files: ['assets/compiled/styles.css'],
 				options: {
-					livereload: true
+					livereload: livereload_port || true
 				}
 			},
 			styles: {
@@ -145,10 +147,10 @@ module.exports = function( grunt ){
 
 	grunt.registerTask( 'server', 'Start the Solidus server', function(){
 		var solidus = require('solidus');
-		var port = grunt.option('port') || grunt.option('p');
 		solidus.start({
-			port: port,
-			dev: true
+			port: solidus_port,
+			dev: true,
+			livereload_port: livereload_port
 		});		
 	});
 
