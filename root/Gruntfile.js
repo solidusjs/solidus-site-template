@@ -90,36 +90,55 @@ module.exports = function( grunt ){
 		copy: {
 			predeploy: {
 				files: [
-					{expand: true, src: '*', filter: 'isFile', dot: true, dest: 'deploy/'},
-					{expand: true, src: ['assets/**','node_modules/**','preprocessors/**','views/**'], dot: true, dest: 'deploy/'}
+					{expand: true, src: ['**', '!.sass-cache/**', '!deploy/**'], filter: 'isFile', dot: true, dest: 'deploy/'}
 				]
 			}
 		},
+		shell: {
+			predeploy_filerev: {
+				options: { stdout: true, stderr: true, failOnError: true },
+				command: 'cd deploy && grunt predeploy_filerev -y'
+			}
+		},
+		prompt: {
+			confirm_filerev: {
+				options: {
+					questions: [
+						{
+							config: 'confirm_filerev',
+							type: 'input',
+							message: 'Are you sure you want to filerev? Your assets and views will be modified. [y/n]',
+							validate: function( value ) {
+								if( value == 'y' ) return true;
+								grunt.fatal('Aborted');
+							},
+							when: function() {
+								return !grunt.option('y');
+							}
+						}
+					]
+				}
+			}
+		},
 		filerev: {
-			assets: { src: ['deploy/assets/**/*.*','!deploy/assets/**/*.{css,scss,js}'] },
-			styles: { src: ['deploy/assets/compiled/styles.css'] },
-			scripts: { src: ['deploy/assets/compiled/scripts.js'] },
-			templates: { src: ['deploy/assets/compiled/templates.js'] }
+			assets: { src: ['assets/**/*.*','!assets/**/*.{css,scss,js}'] },
+			styles: { src: ['assets/compiled/styles.css'] },
+			scripts: { src: ['assets/compiled/scripts.js'] },
+			templates: { src: ['assets/compiled/templates.js'] }
 		},
 		filerev_replace: {
 			assets: {
 				options: {
-					assets_root: 'deploy/assets/',
-					views_root: 'deploy/assets/'
+					assets_root: 'assets/',
+					views_root: 'assets/'
 				},
-				src: 'deploy/assets/compiled/*.{css,js}' },
+				src: 'assets/compiled/*.{css,js}' },
 			views: {
 				options: {
-					assets_root: 'deploy/assets/',
-					views_root: 'deploy/views/'
+					assets_root: 'assets/',
+					views_root: 'views/'
 				},
-				src: 'deploy/views/**/*.hbs'
-			}
-		},
-		shell: {
-			predeploy_compilehbs: {
-				options: { stdout: true, stderr: true, failOnError: true },
-				command: 'cd deploy && grunt compilehbs'
+				src: 'views/**/*.hbs'
 			}
 		},
 		watch: {
@@ -165,16 +184,19 @@ module.exports = function( grunt ){
 	grunt.registerTask( 'compilejs', ['requirejs','concat:scripts'] );
 	grunt.registerTask( 'compilecss', ['sass','cssjoin','clean:styles'] );
 	grunt.registerTask( 'dev', [ 'compile','server','watch' ] );
-	grunt.registerTask( 'predeploy', [
-		'compilecss','compilejs',
-		// Copy the whole site to deploy/
-		'clean:predeploy','copy:predeploy',
-		// Fingerprint the deploy/ asset, styles and scripts
+	grunt.registerTask( 'predeploy', [ 'compile','clean:predeploy','copy:predeploy','shell:predeploy_filerev' ] );
+
+	// This is called by the predeploy task, don't call it directly, unless you know what you're doing
+	grunt.registerTask( 'predeploy_filerev', [
+		// Warn the user his files will be modified
+		'prompt:confirm_filerev',
+		// Fingerprint the assets, styles and scripts (in that order, since assets are used in styles,
+		// and styles are used in scripts)
 		'filerev:assets','filerev_replace',
 		'filerev:styles','filerev_replace',
 		'filerev:scripts','filerev_replace',
-		// The deploy/ views now use fingerprinted assets, compile and fingerprint the deploy/ templates.js
-		'shell:predeploy_compilehbs',
+		// The views now use fingerprinted assets, compile and fingerprint templates.js
+		'compilehbs',
 		'filerev:templates','filerev_replace'] );
 
 };
