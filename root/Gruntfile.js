@@ -90,7 +90,7 @@ module.exports = function( grunt ){
 		copy: {
 			predeploy: {
 				files: [
-					{expand: true, src: ['**', '!.sass-cache/**', '!deploy/**'], filter: 'isFile', dot: true, dest: 'deploy/'}
+					{expand: true, src: ['**','!.git/**','!.sass-cache/**','!deploy/**'], filter: 'isFile', dot: true, dest: 'deploy/'}
 				]
 			}
 		},
