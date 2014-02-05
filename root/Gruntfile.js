@@ -16,7 +16,7 @@ module.exports = function( grunt ){
 				},
 				files: [{
 					src: ['assets/styles/index.scss'],
-					dest: 'assets/styles/index_compiled.css' 
+					dest: 'assets/styles/index_compiled.css'
 				}]
 			}
 		},
@@ -121,7 +121,7 @@ module.exports = function( grunt ){
 			}
 		},
 		filerev: {
-			assets: { src: ['assets/**/*.*','!assets/**/*.{css,scss,js}'] },
+			assets: { src: ['assets/**/*.*','!assets/**/*.{css,scss,js}'], filter: 'isFile' },
 			styles: { src: ['assets/compiled/styles.css'] },
 			scripts: { src: ['assets/compiled/scripts.js'] },
 			templates: { src: ['assets/compiled/templates.js'] }
@@ -175,7 +175,7 @@ module.exports = function( grunt ){
 			port: solidus_port,
 			dev: true,
 			livereload_port: livereload_port
-		});		
+		});
 	});
 
 	grunt.registerTask( 'default', ['compile'] );
