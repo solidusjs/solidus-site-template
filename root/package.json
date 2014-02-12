@@ -15,7 +15,10 @@
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-cssmin": "~0.6.1",
     "grunt-cssjoin": "~0.2.0",
-    "grunt-filerev": "~0.1.0"
+    "grunt-filerev": "~0.1.0",
+    "grunt-filerev-replace": "git://github.com/SparkartGroupInc/grunt-filerev-replace.git#7d91db8844",
+    "grunt-shell": "~0.6.1",
+    "grunt-prompt": "~0.1.2"
   },
   "dependencies": {
     "solidus": "~0.1.3"

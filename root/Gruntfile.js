@@ -16,7 +16,7 @@ module.exports = function( grunt ){
 				},
 				files: [{
 					src: ['assets/styles/index.scss'],
-					dest: 'assets/styles/index_compiled.css' 
+					dest: 'assets/styles/index_compiled.css'
 				}]
 			}
 		},
@@ -29,16 +29,14 @@ module.exports = function( grunt ){
 		},
 		cssmin: {
 			styles: {
-				options: {
-					banner: '/* Compiled on: '+ (new Date).toString() +'*/ \n'
-				},
 				files: {
 					'assets/compiled/styles.css': ['assets/styles/index_compiled.css']
 				}
 			}
 		},
 		clean: {
-			styles: ['assets/styles/index_compiled.css']
+			styles: ['assets/styles/index_compiled.css'],
+			predeploy: ['deploy/']
 		},
 		handlebars: {
 			compile: {
@@ -84,9 +82,6 @@ module.exports = function( grunt ){
 		},
 		uglify: {
 			templates: {
-				options: {
-					banner: '/* Compiled on: '+ (new Date).toString() +'*/ \n'
-				},
 				files: {
 					'assets/compiled/templates.js': ['assets/compiled/templates.js']
 				}
@@ -94,22 +89,56 @@ module.exports = function( grunt ){
 		},
 		copy: {
 			predeploy: {
-				files: [{
-					expand: true,
-					src: ['assets/**','views/**'],
-					dest: 'deploy/'
-				}]
+				files: [
+					{expand: true, src: ['**','!.git/**','!.sass-cache/**','!deploy/**'], filter: 'isFile', dot: true, dest: 'deploy/'}
+				]
+			}
+		},
+		shell: {
+			predeploy_filerev: {
+				options: { stdout: true, stderr: true, failOnError: true },
+				command: 'cd deploy && grunt predeploy_filerev -y'
+			}
+		},
+		prompt: {
+			confirm_filerev: {
+				options: {
+					questions: [
+						{
+							config: 'confirm_filerev',
+							type: 'input',
+							message: 'Are you sure you want to filerev? Your assets and views will be modified. [y/n]',
+							validate: function( value ) {
+								if( value == 'y' ) return true;
+								grunt.fatal('Aborted');
+							},
+							when: function() {
+								return !grunt.option('y');
+							}
+						}
+					]
+				}
 			}
 		},
 		filerev: {
+			assets: { src: ['assets/**/*.*','!assets/**/*.{css,scss,js}'], filter: 'isFile' },
+			styles: { src: ['assets/compiled/styles.css'] },
+			scripts: { src: ['assets/compiled/scripts.js'] },
+			templates: { src: ['assets/compiled/templates.js'] }
+		},
+		filerev_replace: {
 			assets: {
-				src: ['deploy/assets/**/*','!deploy/assets/**/*.css','!deploy/assets/**/*.js']
-			},
-			styles: {
-				src: 'deploy/assets/**/*.css'
-			},
-			scripts: {
-				src: 'deploy/assets/**/*.js'
+				options: {
+					assets_root: 'assets/',
+					views_root: 'assets/'
+				},
+				src: 'assets/compiled/*.{css,js}' },
+			views: {
+				options: {
+					assets_root: 'assets/',
+					views_root: 'views/'
+				},
+				src: 'views/**/*.hbs'
 			}
 		},
 		watch: {
@@ -131,14 +160,9 @@ module.exports = function( grunt ){
 				files: ['assets/scripts/**/*.js'],
 				tasks: ['compilejs']
 			}
-		},
-		'replace-asset-urls': {
-			files: {
-				src: ['deploy/assets/**/*.css','deploy/assets/**/*.js','deploy/views/**/*.hbs']
-			}
 		}
 	});
-	
+
 	// The cool way to load Grunt tasks
 	// https://github.com/Fauntleroy/relay.js/blob/master/Gruntfile.js
 	Object.keys( pkg.devDependencies ).forEach( function( dep ){
@@ -151,19 +175,6 @@ module.exports = function( grunt ){
 			port: solidus_port,
 			dev: true,
 			livereload_port: livereload_port
-		});		
-	});
-
-	grunt.registerMultiTask( 'replace-asset-urls', function(){
-		this.files[0].src.forEach( function( src ){
-			var contents = grunt.file.read( src );
-			for( var url in grunt.filerev.summary ){
-				var rev_url = grunt.filerev.summary[url].replace( 'deploy'+ path.sep +'assets'+ path.sep, '' );
-				var url_regex = new RegExp( url.replace( 'deploy'+ path.sep +'assets'+ path.sep, '' ), 'ig' );
-				contents = contents.replace( url_regex, rev_url );
-				console.log( url_regex, 'to', rev_url );
-			}
-			grunt.file.write( src, contents );
 		});
 	});
 
@@ -173,6 +184,19 @@ module.exports = function( grunt ){
 	grunt.registerTask( 'compilejs', ['requirejs','concat:scripts'] );
 	grunt.registerTask( 'compilecss', ['sass','cssjoin','clean:styles'] );
 	grunt.registerTask( 'dev', [ 'compile','server','watch' ] );
-	grunt.registerTask( 'predeploy', ['copy:predeploy','filerev:assets','replace-asset-urls','filerev:scripts','filerev:styles','replace-asset-urls'] );
+	grunt.registerTask( 'predeploy', [ 'compile','clean:predeploy','copy:predeploy','shell:predeploy_filerev' ] );
+
+	// This is called by the predeploy task, don't call it directly, unless you know what you're doing
+	grunt.registerTask( 'predeploy_filerev', [
+		// Warn the user his files will be modified
+		'prompt:confirm_filerev',
+		// Fingerprint the assets, styles and scripts (in that order, since assets are used in styles,
+		// and styles are used in scripts)
+		'filerev:assets','filerev_replace',
+		'filerev:styles','filerev_replace',
+		'filerev:scripts','filerev_replace',
+		// The views now use fingerprinted assets, compile and fingerprint templates.js
+		'compilehbs',
+		'filerev:templates','filerev_replace'] );
 
 };
