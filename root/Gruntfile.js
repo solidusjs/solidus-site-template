@@ -61,11 +61,6 @@ module.exports = function( grunt ){
 				files: {
 					'assets/compiled/templates.js': ['node_modules/grunt-contrib-handlebars/node_modules/handlebars/dist/handlebars.runtime.js','assets/compiled/templates.js']
 				}
-			},
-			scripts: {
-				files: {
-					'assets/compiled/scripts.js': ['node_modules/grunt-contrib-requirejs/node_modules/requirejs/require.js','assets/compiled/scripts.js']
-				}
 			}
 		},
 		requirejs: {
@@ -76,7 +71,11 @@ module.exports = function( grunt ){
 					name: 'index',
 					preserveLicenseComments: false,
 					generateSourceMaps: true,
-					optimize: 'uglify2'
+					optimize: 'uglify2',
+					paths: {
+						'requireLib': '../../node_modules/grunt-contrib-requirejs/node_modules/requirejs/require'
+					},
+					include: 'requireLib'
 				}
 			}
 		},
@@ -181,7 +180,7 @@ module.exports = function( grunt ){
 	grunt.registerTask( 'default', ['compile'] );
 	grunt.registerTask( 'compile', ['compilecss','compilehbs','compilejs'] );
 	grunt.registerTask( 'compilehbs', ['handlebars','concat:templates','uglify:templates'] );
-	grunt.registerTask( 'compilejs', ['requirejs','concat:scripts'] );
+	grunt.registerTask( 'compilejs', ['requirejs'] );
 	grunt.registerTask( 'compilecss', ['sass','cssjoin','clean:styles'] );
 	grunt.registerTask( 'dev', [ 'compile','server','watch' ] );
 	grunt.registerTask( 'predeploy', [ 'compile','clean:predeploy','copy:predeploy','shell:predeploy_filerev' ] );
