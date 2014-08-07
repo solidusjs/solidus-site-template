@@ -21,6 +21,6 @@
     "grunt-prompt": "~0.1.2"
   },
   "dependencies": {
-    "solidus": "~0.2.1"
+    "solidus": "~0.2.2"
   }
 }
