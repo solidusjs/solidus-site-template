@@ -3,11 +3,7 @@ var path = require('path');
 module.exports = function( grunt ){
 
   var pkg = grunt.file.readJSON( __dirname +'/package.json');
-  var solidus_port = grunt.option('port') || grunt.option('p');
-  var livereload_port = grunt.option('livereloadport') || grunt.option('r');
-  var log_server_port = grunt.option('logserverport');
-  var log_level = grunt.option('loglevel') || grunt.option('l');
-  var log_server_level = grunt.option('logserverlevel');
+  var livereload_port = parseInt(process.env.npm_config_livereloadport);
 
   grunt.initConfig({
     pkg: pkg,
@@ -168,28 +164,15 @@ module.exports = function( grunt ){
   // The cool way to load Grunt tasks
   // https://github.com/Fauntleroy/relay.js/blob/master/Gruntfile.js
   Object.keys( pkg.devDependencies ).forEach( function( dep ){
-    if( dep.substring( 0, 6 ) === 'grunt-' ) grunt.loadNpmTasks( dep );
+    if( dep.substring( 0, 6 ) === 'grunt-' && dep !== 'grunt-cli' ) grunt.loadNpmTasks( dep );
   });
 
-  grunt.registerTask( 'server', 'Start the Solidus server', function(){
-    var solidus = require('solidus');
-    solidus.start({
-      port: solidus_port,
-      dev: true,
-      livereload_port: livereload_port,
-      log_server_port: log_server_port,
-      log_level: log_level,
-      log_server_level: log_server_level
-    });
-  });
-
-  grunt.registerTask( 'default', ['compile'] );
-  grunt.registerTask( 'compile', ['compilecss','compilehbs','compilejs'] );
+  grunt.registerTask( 'default', ['build'] );
+  grunt.registerTask( 'build', ['compilecss','compilehbs','compilejs'] );
   grunt.registerTask( 'compilehbs', ['handlebars','concat:templates','uglify:templates'] );
   grunt.registerTask( 'compilejs', ['requirejs'] );
   grunt.registerTask( 'compilecss', ['sass','cssjoin','clean:styles'] );
-  grunt.registerTask( 'dev', [ 'compile','server','watch' ] );
-  grunt.registerTask( 'predeploy', [ 'compile','clean:predeploy','copy:predeploy','shell:predeploy_filerev' ] );
+  grunt.registerTask( 'predeploy', [ 'build','clean:predeploy','copy:predeploy','shell:predeploy_filerev' ] );
 
   // This is called by the predeploy task, don't call it directly, unless you know what you're doing
   grunt.registerTask( 'predeploy_filerev', [
